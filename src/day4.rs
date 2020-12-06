@@ -99,7 +99,10 @@ fn validate_passport(passport: &Vec<String>) -> bool {
                 }
             }
             "hcl" => { // (Hair Color) - a # followed by exactly six characters 0-9 or a-f.
-                if !Regex::new(r"^#[0-9a-f]{6}$").expect("invalid pid regex").is_match(&value) {
+                lazy_static! {
+                    static ref RE: Regex = Regex::new(r"^#[0-9a-f]{6}$").expect("invalid hcl regex");
+                }
+                if !RE.is_match(&value) {
                     return false
                 }
             }
@@ -109,7 +112,10 @@ fn validate_passport(passport: &Vec<String>) -> bool {
                 }
             }
             "pid" => { // (Passport ID) - a nine-digit number, including leading zeroes.
-                if !Regex::new(r"^\d{9}$").expect("invalid pid regex").is_match(&value) {
+                lazy_static! {
+                    static ref RE: Regex = Regex::new(r"^\d{9}$").expect("invalid pid regex");
+                }
+                if !RE.is_match(&value) {
                     return false
                 }
             }
