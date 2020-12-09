@@ -35,7 +35,7 @@ fn parse_rule(rule: String) -> (String, Vec<(usize, String)>) {
     (String::from(container), parsed_contents)
 }
 
-// Step 1
+// Part 1
 fn get_contained_by_map() -> HashMap<String, Vec<String>> {
     let mut rules: HashMap<String, Vec<String>> = HashMap::new();
     read_file()
@@ -58,6 +58,7 @@ fn get_contained_by_map() -> HashMap<String, Vec<String>> {
     rules
 }
 
+// Part 1
 fn get_colors_containing(wanted_color: String) -> HashSet<String> {
     let mut result: HashSet<String> = HashSet::new();
     let mut analyzed: Vec<String> = Vec::new();
@@ -80,7 +81,7 @@ fn get_colors_containing(wanted_color: String) -> HashSet<String> {
     result
 }
 
-// Step 2
+// Part 2
 fn get_contains_map() -> HashMap<String, Vec<(usize, String)>> {
     let mut rules = HashMap::new();
     read_file()
@@ -92,10 +93,14 @@ fn get_contains_map() -> HashMap<String, Vec<(usize, String)>> {
     rules
 }
 
-fn get_total_bags_inside(wanted_color: String, contains_map: &HashMap<String, Vec<(usize, String)>>) -> usize {
+// Part 2
+fn get_total_bags_inside(wanted_color: &String) -> usize {
+    lazy_static! {
+        static ref MAP: HashMap<String, Vec<(usize, String)>> = get_contains_map();
+    }
     let mut total = 0;
-    contains_map.get(&wanted_color).expect("unknown color in contains_map").iter().for_each(|(count, color)| {
-        total += count * (1 + get_total_bags_inside(color.clone(), &contains_map))
+    MAP.get(wanted_color).expect("unknown color in contains_map").iter().for_each(|(count, color)| {
+        total += count * (1 + get_total_bags_inside(color))
     });
     total
 }
@@ -106,6 +111,6 @@ pub fn main () {
     // println!("All colors that contain a shiny gold bag: {}", colors.len());
 
     // Part 2
-    let contained = get_total_bags_inside(String::from("shiny gold"), &get_contains_map());
+    let contained = get_total_bags_inside(&String::from("shiny gold"));
     println!("Bags contained by the gold bag: {}", contained)
 }
