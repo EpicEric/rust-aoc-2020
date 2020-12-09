@@ -1,19 +1,7 @@
 use std::{
     collections::HashSet,
-    iter::Iterator,
-    fs::File,
-    io::{self, BufRead},
-    path::Path,
 };
 use regex::Regex;
-
-fn read_file() -> impl Iterator<Item=String> {
-    let path = Path::new("./inputs/day8.txt");
-    let file = File::open(&path).expect("couldn't open file");
-    io::BufReader::new(file)
-        .lines()
-        .map(|l| l.expect("couldn't parse line"))
-}
 
 #[derive(Debug, Clone)]
 enum Instruction {
@@ -39,7 +27,7 @@ fn run_code_until_loop() {
     let mut acc = 0isize;
     let mut head = 0usize;
     let mut prev_heads: HashSet<usize> = HashSet::new();
-    let code: Vec<Instruction> = read_file().map(parse_instruction).collect();
+    let code: Vec<Instruction> = super::file::read_file("./inputs/day8.txt").map(parse_instruction).collect();
     loop {
         if prev_heads.contains(&head) {
             println!("LOOP DETECTED!");
@@ -64,7 +52,7 @@ fn run_code_until_loop() {
 
 // Part 2
 fn fix_code() {
-    let original_code: Vec<Instruction> = read_file().map(parse_instruction).collect();
+    let original_code: Vec<Instruction> = super::file::read_file("./inputs/day8.txt").map(parse_instruction).collect();
     for (i, fixable_instruction) in original_code.iter().enumerate() {
         let mut code = original_code.clone();
         match fixable_instruction {

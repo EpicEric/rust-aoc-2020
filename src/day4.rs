@@ -1,20 +1,4 @@
-use std::{
-    iter::Iterator,
-    fs::File,
-    io::{self, BufRead},
-    path::Path,
-};
 use regex::Regex;
-
-// See "impl Trait" for more information on the return type:
-// https://doc.rust-lang.org/rust-by-example/trait/impl_trait.html
-fn read_file() -> impl Iterator<Item=String> {
-    let path = Path::new("./inputs/day4.txt");
-    let file = File::open(&path).expect("couldn't open file");
-    io::BufReader::new(file)
-        .lines()
-        .map(|l| l.expect("couldn't parse line"))
-}
 
 static REQUIRED_FIELDS: [&str; 7] = [
     "byr",
@@ -135,7 +119,7 @@ fn validate_passport(passport: &Vec<String>) -> bool {
 fn get_valid_passports() -> Vec<Vec<String>> {
     let mut valid_passports: Vec<Vec<String>> = Vec::new();
     let mut current_passport: Vec<String> = Vec::new();
-    read_file().for_each(|l| {
+    super::file::read_file("./inputs/day4.txt").for_each(|l| {
         if l == "" {
             if validate_passport(&current_passport) {
                 // TODO: Find out how to give up current reference instead of copying

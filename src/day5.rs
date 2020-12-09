@@ -1,19 +1,6 @@
 use std::{
     iter::Iterator,
-    fs::File,
-    io::{self, BufRead},
-    path::Path,
 };
-
-// See "impl Trait" for more information on the return type:
-// https://doc.rust-lang.org/rust-by-example/trait/impl_trait.html
-fn read_file() -> impl Iterator<Item=String> {
-    let path = Path::new("./inputs/day5.txt");
-    let file = File::open(&path).expect("couldn't open file");
-    io::BufReader::new(file)
-        .lines()
-        .map(|l| l.expect("couldn't parse line"))
-}
 
 fn to_seat_id(boarding_pass: String) -> usize {
     usize::from_str_radix(
@@ -46,7 +33,7 @@ impl From<String> for Seat {
 }
 
 fn get_seats() -> impl Iterator<Item=Seat> {
-    read_file()
+    super::file::read_file("./inputs/day5.txt")
         .map(Seat::from)
 }
 

@@ -4,8 +4,10 @@
 #[macro_use] extern crate lazy_static;
 extern crate regex;
 
-mod day8;
+mod file;
+
+mod day9;
 
 fn main() {
-    day8::main()
+    day9::main()
 }

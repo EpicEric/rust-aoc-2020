@@ -1,19 +1,7 @@
 use std::{
     collections::{HashSet, HashMap},
-    iter::Iterator,
-    fs::File,
-    io::{self, BufRead},
-    path::Path,
 };
 use regex::Regex;
-
-fn read_file() -> impl Iterator<Item=String> {
-    let path = Path::new("./inputs/day7.txt");
-    let file = File::open(&path).expect("couldn't open file");
-    io::BufReader::new(file)
-        .lines()
-        .map(|l| l.expect("couldn't parse line"))
-}
 
 fn parse_rule(rule: String) -> (String, Vec<(usize, String)>) {
     // X bags contain Y1 Z1 bags, Y2 Z2 bag.
@@ -38,7 +26,7 @@ fn parse_rule(rule: String) -> (String, Vec<(usize, String)>) {
 // Part 1
 fn get_contained_by_map() -> HashMap<String, Vec<String>> {
     let mut rules: HashMap<String, Vec<String>> = HashMap::new();
-    read_file()
+    super::file::read_file("./inputs/day7.txt")
         .map(parse_rule)
         .for_each(|rule| {
             let (container, contents) = rule;
@@ -84,7 +72,7 @@ fn get_colors_containing(wanted_color: String) -> HashSet<String> {
 // Part 2
 fn get_contains_map() -> HashMap<String, Vec<(usize, String)>> {
     let mut rules = HashMap::new();
-    read_file()
+    super::file::read_file("./inputs/day7.txt")
         .map(parse_rule)
         .for_each(|rule| {
             let (container, contents) = rule;

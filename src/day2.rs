@@ -1,20 +1,7 @@
 use std::{
     iter::Iterator,
-    fs::File,
-    io::{self, BufRead},
-    path::Path,
 };
 use regex::Regex;
-
-// See "impl Trait" for more information on the return type:
-// https://doc.rust-lang.org/rust-by-example/trait/impl_trait.html
-fn read_file() -> impl Iterator<Item=String> {
-    let path = Path::new("./inputs/day2.txt");
-    let file = File::open(&path).expect("couldn't open file");
-    io::BufReader::new(file)
-        .lines()
-        .map(|l| l.expect("couldn't parse line"))
-}
 
 #[derive(Debug)]
 struct PasswordValidation {
@@ -38,7 +25,7 @@ impl From<String> for PasswordValidation {
 }
 
 fn get_data() -> impl Iterator<Item=PasswordValidation> {
-    read_file()
+    super::file::read_file("./inputs/day2.txt")
         .map(|l| PasswordValidation::from(l))
 }
 

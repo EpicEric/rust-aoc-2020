@@ -1,26 +1,13 @@
-use std::{
-    fs::File,
-    io::{self, BufRead},
-    path::Path,
-};
-
-fn read_file() -> Vec<String> {
-    let path = Path::new("./inputs/day1.txt");
-    let file = File::open(&path).expect("couldn't open file");
-    io::BufReader::new(file)
-        .lines()
-        .map(|l| l.expect("couldn't parse line"))
-        .collect()
-}
 
 fn get_data() -> Vec<i32> {
-    read_file()
+    super::file::read_file("./inputs/day1.txt").collect::<Vec<String>>()
         .iter().map(|l| l.parse::<i32>().expect("line is not an int"))
         .collect()
 }
 
 pub fn main() {
     let list = get_data();
+    // Part 1
     // for j in 0..(list.len()-1) {
     //     let second = list[j];
     //     let third = 2020 - second;
@@ -31,6 +18,7 @@ pub fn main() {
     //         }
     //     }
     // }
+    // Part 2
     for i in 0..(list.len()-2) {
         let first = list[i];
         for j in i..(list.len()-1) {
