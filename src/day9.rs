@@ -8,7 +8,7 @@ fn find_attack_number(preamble_size: usize) -> usize {
     let mut current_preamble_sums: VecDeque<Vec<usize>> = VecDeque::new();
     for number in
         super::file::read_file("./inputs/day9.txt")
-            .map(|n| n.parse::<usize>().expect("line is not an int"))
+            .map(|n| n.parse::<usize>().expect("line is not an usize"))
     {
         if current_preamble.len() == preamble_size {
             if !current_preamble_sums.iter().any(
@@ -29,7 +29,7 @@ fn find_attack_number(preamble_size: usize) -> usize {
 
 fn find_encryption_weakness(attack_number: usize) -> (usize, usize) {
     let number_list: Vec<usize> = super::file::read_file("./inputs/day9.txt")
-            .map(|n| n.parse::<usize>().expect("line is not an int"))
+            .map(|n| n.parse::<usize>().expect("line is not an usize"))
             .collect();
     for i in 0..number_list.len() {
         let mut sum = 0usize;
