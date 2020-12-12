@@ -6,8 +6,8 @@ extern crate regex;
 
 mod file;
 
-mod day10;
+mod day11;
 
 fn main() {
-    day10::main()
+    day11::main()
 }
