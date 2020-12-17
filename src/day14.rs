@@ -2,7 +2,6 @@ use std::{
     collections::HashMap,
     convert::TryFrom,
     iter::from_fn,
-    num::ParseIntError,
 };
 use regex::Regex;
 
