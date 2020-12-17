@@ -31,8 +31,8 @@ fn run_memory_game(last_turn: usize) -> usize {
 }
 
 pub fn main () {
-    // let turns: usize = 2020;
-    let turns: usize = 30000000; // A bit slow but still under 30 seconds
+    // let turns: usize = 2020; // Part 1
+    let turns: usize = 30000000; // Part 2; a bit slow, but still under 30 seconds
     let final_value = run_memory_game(turns);
     println!("The {}th value is: {}", turns, final_value);
 }
