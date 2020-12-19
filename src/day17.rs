@@ -205,6 +205,8 @@ impl Dimension {
 
         cubes_to_deactivate.iter().for_each(|c| self.deactivate_cube(c));
         cubes_to_activate.iter().for_each(|c| self.activate_cube(c));
+
+        // TODO: Compress self.min_coordinates and self.max_coordinates
     }
 }
 
