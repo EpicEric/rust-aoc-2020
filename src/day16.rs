@@ -120,6 +120,7 @@ fn get_correct_field_order<'a>(fields: &'a Vec<Field>, tickets: &Vec<Vec<usize>>
         }
     }
     // println!("{:?}", possible_fields_per_column.iter().map(|f| f.len()).collect::<Vec<_>>());
+    // ASSUMPTION: You can eliminate non-possible fields by linear process of elimination
     while possible_fields_per_column.iter().any(|c| c.len() > 1) {
         let clearable_fields: Vec<(usize, &Field)> = possible_fields_per_column.iter().enumerate().filter(|(_, c)| c.len() == 1).map(|(i, c)| (i, c[0])).collect();
         for (i, field) in clearable_fields {
