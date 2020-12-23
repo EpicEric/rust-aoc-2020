@@ -1,6 +1,7 @@
 use std::{
     cmp,
     collections::{HashMap, HashSet},
+    iter::from_fn,
 };
 use num_integer::Roots;
 use regex::Regex;
@@ -68,8 +69,12 @@ impl Camera {
         ]
     }
 
-    fn get_trimmed_photo(&self) -> Vec<Vec<bool>> {
-        self.photo[1..self.photo.len() - 1].iter().map(|line| line[1..line.len() - 1].to_vec()).collect()
+    fn get_trimmed_photo(&self, cut_north: bool, cut_south: bool, cut_east: bool, cut_west: bool) -> Vec<Vec<bool>> {
+        let first_i = if cut_north { 1 } else { 0 };
+        let last_i = if cut_south { self.photo.len() - 1 } else { self.photo.len() };
+        let first_j = if cut_west { 1 } else { 0 };
+        let last_j = if cut_east { self.photo[0].len() - 1 } else { self.photo[0].len() };
+        self.photo[first_i..last_i].iter().map(|line| line[first_j..last_j].to_vec()).collect()
     }
 
     // fn rotations(&self) -> Vec<Self> {
@@ -99,35 +104,91 @@ impl Camera {
     //     ]
     // }
 
-    // fn horizontal_flip(&self) -> Self {
-    //     Self {
-    //         id: self.id,
-    //         north: self.north.flip(),
-    //         east: self.west.clone(),
-    //         south: self.south.flip(),
-    //         west: self.east.clone(),
-    //     }
-    // }
+    fn rotate_cw(&self) -> Self {
+        Self {
+            id: self.id,
+            north: self.west.clone(),
+            east: self.north.clone(),
+            south: self.east.clone(),
+            west: self.south.clone(),
+            photo: matrix_rotate_cw(&self.photo),
+        }
+    }
 
-    // fn vertical_flip(&self) -> Self {
-    //     Self {
-    //         id: self.id,
-    //         north: self.south.clone(),
-    //         east: self.east.flip(),
-    //         south: self.north.clone(),
-    //         west: self.west.flip(),
-    //     }
-    // }
+    fn horizontal_flip(&self) -> Self {
+        Self {
+            id: self.id,
+            north: self.north.flip(),
+            east: self.west.clone(),
+            south: self.south.flip(),
+            west: self.east.clone(),
+            photo: matrix_flip_h(&self.photo),
+        }
+    }
 
-    // fn hv_flip(&self) -> Self {
-    //     Self {
-    //         id: self.id,
-    //         north: self.south.flip(),
-    //         east: self.west.flip(),
-    //         south: self.north.flip(),
-    //         west: self.east.flip(),
-    //     }
-    // }
+    fn vertical_flip(&self) -> Self {
+        Self {
+            id: self.id,
+            north: self.south.clone(),
+            east: self.east.flip(),
+            south: self.north.clone(),
+            west: self.west.flip(),
+            photo: matrix_flip_v(&self.photo),
+        }
+    }
+
+    fn get_possibilities_iter<'a>(&'a self) -> impl Iterator<Item=Self> + 'a {
+        let mut counter = 0usize;
+        let mut curr_copy = self.clone();
+        from_fn(move || {
+            match counter {
+                16 => None,
+                3 => {
+                    let to_return = curr_copy.clone();
+                    curr_copy = self.horizontal_flip();
+                    counter += 1;
+                    Some(to_return)
+                },
+                7 => {
+                    let to_return = curr_copy.clone();
+                    curr_copy = self.vertical_flip();
+                    counter += 1;
+                    Some(to_return)
+                },
+                11 => {
+                    let to_return = curr_copy.clone();
+                    curr_copy = self.horizontal_flip().vertical_flip();
+                    counter += 1;
+                    Some(to_return)
+                },
+                _ => {
+                    let to_return = curr_copy.clone();
+                    curr_copy = to_return.rotate_cw();
+                    counter += 1;
+                    Some(to_return)
+                }
+            }
+        })
+    }
+}
+
+fn matrix_rotate_cw<T: Clone>(matrix: &Vec<Vec<T>>) -> Vec<Vec<T>> {
+    let n = matrix.len();
+    let mut new_matrix: Vec<Vec<T>> = vec![Vec::new(); n];
+    for i in 0..n {
+        for j in 0..n {
+            new_matrix[i].push(matrix[n - j - 1][i].clone());
+        }
+    }
+    new_matrix
+}
+
+fn matrix_flip_h<T: Clone>(matrix: &Vec<Vec<T>>) -> Vec<Vec<T>> {
+    matrix.iter().map(|line| line.iter().rev().map(|x| x.clone()).collect()).collect()
+}
+
+fn matrix_flip_v<T: Clone>(matrix: &Vec<Vec<T>>) -> Vec<Vec<T>> {
+    matrix.iter().rev().map(|x| x.clone()).collect()
 }
 
 fn get_data() -> Vec<Camera> {
@@ -320,8 +381,56 @@ fn get_image(cameras: &Vec<Camera>) {
         println!("{:?}", line.iter().map(|c| c.id).collect::<Vec<_>>());
     });
 
+    let mut final_camera_array = camera_array.clone();
+
     // Align cameras properly and generate full image
-    // TODO
+    for i in 0..size {
+        for j in 0..size {
+            let mut found = false;
+            for possibility in camera_array[i][j].get_possibilities_iter() {
+                let mut is_valid = true;
+                if i == 0 && j == 0 {
+                    if matching_borders_with_cameras.get(cmp::min(&possibility.north.flip().hash, &possibility.north.hash)).unwrap().len() != 1 {
+                        is_valid = false;
+                    } else if matching_borders_with_cameras.get(cmp::min(&possibility.west.flip().hash, &possibility.west.hash)).unwrap().len() != 1 {
+                        is_valid = false;
+                    }
+                // } else if i == 0 && j == 1 {
+                // TODO: Do some rotations/flips on [0][0] to match this one's border; all the other tiles shouldn't need to modify previous ones.
+                // But at this point I'm still not close to finishing the exercise... It would still require joining the images and finding the monsters.
+                } else if i == 0 {
+                    if matching_borders_with_cameras.get(cmp::min(&possibility.north.flip().hash, &possibility.north.hash)).unwrap().len() != 1 {
+                        is_valid = false;
+                    } else if possibility.west.hash != camera_array[i][j - 1].east.hash {
+                        is_valid = false;
+                    }
+                } else if j == 0 {
+                    if matching_borders_with_cameras.get(cmp::min(&possibility.west.flip().hash, &possibility.west.hash)).unwrap().len() != 1 {
+                        is_valid = false;
+                    } else if possibility.north.hash != camera_array[i - 1][j - 1].south.hash {
+                        is_valid = false;
+                    }
+                } else {
+                    if possibility.west.hash != camera_array[i][j - 1].east.hash {
+                        is_valid = false;
+                    } else if possibility.north.hash != camera_array[i - 1][j - 1].south.hash {
+                        is_valid = false;
+                    }
+                }
+                if is_valid {
+                    final_camera_array[i][j] = possibility;
+                    found = true;
+                    break;
+                }
+            }
+            if !found {
+                panic!("couldn't find correct orientation for camera");
+            }
+            println!("ok")
+        }
+    }
+
+    println!("cameras are okay!");
 }
 
 pub fn main() {
